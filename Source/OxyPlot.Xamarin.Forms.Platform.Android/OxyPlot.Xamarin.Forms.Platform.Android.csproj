@@ -18,7 +18,6 @@
     <AndroidHttpClientHandlerType>Xamarin.Android.Net.AndroidClientHandler</AndroidHttpClientHandlerType>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
-    <PackOnBuild>true</PackOnBuild>
     <PackageId>OxyPlot.Xamarin.Forms.Platform.Android</PackageId>
     <PackageVersion>2.0.0-preview0001</PackageVersion>
     <Authors>OxyPlot contributors</Authors>

@@ -15,7 +15,6 @@
     <AndroidResgenClass>Resource</AndroidResgenClass>
     <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
     <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
-    <PackOnBuild>true</PackOnBuild>
     <PackageId>OxyPlot.Xamarin.Android</PackageId>
     <PackageVersion>2.0.0-preview0001</PackageVersion>
     <Authors>OxyPlot contributors</Authors>

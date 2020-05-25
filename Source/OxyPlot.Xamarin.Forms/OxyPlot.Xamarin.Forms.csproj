@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
-    <PackOnBuild>true</PackOnBuild>
     <PackageId>OxyPlot.Xamarin.Forms</PackageId>
     <PackageVersion>2.0.0-preview0001</PackageVersion>
     <Authors>OxyPlot contributors</Authors>
