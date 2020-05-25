@@ -80,7 +80,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OxyPlot.Xamarin.Forms\OxyPlot.Xamarin.Forms.csproj">
-      <Project>{B63C5F8C-61C8-4E69-93D6-F49F816D3746}</Project>
+      <Project>{A4115463-7E9D-4CF5-AAC2-1C409BA09A27}</Project>
       <Name>OxyPlot.Xamarin.Forms</Name>
     </ProjectReference>
     <ProjectReference Include="..\OxyPlot.Xamarin.Android\OxyPlot.Xamarin.Android.csproj">
