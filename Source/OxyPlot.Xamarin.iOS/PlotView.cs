@@ -79,7 +79,8 @@ namespace OxyPlot.Xamarin.iOS
         /// <summary>
         /// Initialize the view.
         /// </summary>
-        private void Initialize() {
+        private void Initialize()
+        {
             this.UserInteractionEnabled = true;
             this.MultipleTouchEnabled = true;
             this.BackgroundColor = UIColor.White;
@@ -90,10 +91,39 @@ namespace OxyPlot.Xamarin.iOS
 			//Prevent panZoom and tap gestures from being recognized simultaneously
 			this.tapGesture.RequireGestureRecognizerToFail(this.panZoomGesture);
 
+
+            // solving conflicts with UIScrollView touches
+            // **  without this fix no scrolling happens
+            InitHotfixForScrollviewConflicts();
+
             // Do not intercept touches on overlapping views
             this.panZoomGesture.ShouldReceiveTouch += (recognizer, touch) => touch.View == this;
 			this.tapGesture.ShouldReceiveTouch += (recognizer, touch) => touch.View == this;
         }
+
+        private void InitHotfixForScrollviewConflicts()
+        {
+            // solving conflicts with UIScrollView touches
+            // **  without this fix no scrolling happens
+
+            this.tapGesture.CancelsTouchesInView = false;
+            this.panZoomGesture.CancelsTouchesInView = false;
+
+            this.panZoomGesture.ShouldRecognizeSimultaneously += (thisGesture, anotherGesture) =>
+            {
+                bool result = !object.ReferenceEquals(this.tapGesture, anotherGesture);
+                return result;
+            };
+
+            this.tapGesture.ShouldRecognizeSimultaneously += (thisGesture, anotherGesture) =>
+            {
+                bool result = !object.ReferenceEquals(this.panZoomGesture, anotherGesture);
+                return result;
+            };
+        }
+
+        public bool IsZoomingAndPanningGestureAllowed { get; set; } = true;
+             
 
         /// <summary>
         /// Gets or sets the <see cref="PlotModel"/> to show in the view. 
@@ -355,6 +385,11 @@ namespace OxyPlot.Xamarin.iOS
 
         private void HandlePanZoomGesture()
         {
+            if (!this.IsZoomingAndPanningGestureAllowed)
+            {
+                return;
+            }
+
             switch (this.panZoomGesture.State)
             {
                 case UIGestureRecognizerState.Began:
