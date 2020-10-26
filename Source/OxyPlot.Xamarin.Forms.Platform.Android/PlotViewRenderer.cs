@@ -60,7 +60,8 @@ namespace OxyPlot.Xamarin.Forms.Platform.Android
             var plotView = new PlotView(this.Context)
             {
                 Model = this.Element.Model,
-                Controller = this.Element.Controller
+                Controller = this.Element.Controller,
+                IsZoomingAndPanningGestureAllowed = this.IsZoomingAndPanningGestureAllowed
             };
 
             plotView.SetBackgroundColor(this.Element.BackgroundColor.ToAndroid());

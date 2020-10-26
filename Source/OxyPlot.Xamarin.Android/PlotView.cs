@@ -103,6 +103,8 @@ namespace OxyPlot.Xamarin.Android
         {
         }
 
+        public bool IsZoomingAndPanningGestureAllowed { get; set; } = true;
+
         /// <summary>
         /// Gets or sets the plot model.
         /// </summary>

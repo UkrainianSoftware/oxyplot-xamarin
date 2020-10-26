@@ -23,12 +23,34 @@ namespace OxyPlot.Xamarin.Forms
         /// <summary>
         /// Identifies the <see cref="Controller" />  bindable property.
         /// </summary>
-        public static readonly BindableProperty ControllerProperty = BindableProperty.Create(nameof(Controller), typeof(PlotController), typeof(PlotView));
+        public static readonly BindableProperty ControllerProperty =
+            BindableProperty.Create(
+                propertyName: nameof(Controller),
+                returnType: typeof(PlotController),
+                declaringType: typeof(PlotView));
 
         /// <summary>
         /// Identifies the <see cref="Model" />  bindable property.
         /// </summary>
-        public static readonly BindableProperty ModelProperty = BindableProperty.Create(nameof(Model), typeof(PlotModel), typeof(PlotView));
+        public static readonly BindableProperty ModelProperty =
+            BindableProperty.Create(
+                propertyName: nameof(Model),
+                returnType: typeof(PlotModel),
+                declaringType: typeof(PlotView));
+
+
+        public static readonly BindableProperty IsZoomingAndPanningGestureAllowedProperty =
+            BindableProperty.Create(
+                propertyName: nameof(IsZoomingAndPanningGestureAllowed),
+                returnType: typeof(bool),
+                declaringType: typeof(PlotView));
+
+
+        public bool IsZoomingAndPanningGestureAllowed
+        {
+            get { return (bool)this.GetValue(IsZoomingAndPanningGestureAllowedProperty); }
+            set { this.SetValue(IsZoomingAndPanningGestureAllowedProperty, value); }
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PlotView"/> class.
