@@ -57,7 +57,7 @@ namespace OxyPlot.Xamarin.Forms.Platform.iOS
                 Model = this.Element.Model,
                 Controller = this.Element.Controller,
                 BackgroundColor = this.Element.BackgroundColor.ToOxyColor().ToUIColor(),
-                IsZoomingAndPanningGestureAllowed = this.IsZoomingAndPanningGestureAllowed
+                IsZoomingAndPanningGestureAllowed = this.Element.IsZoomingAndPanningGestureAllowed
             };
 
             this.SetNativeControl(plotView);
