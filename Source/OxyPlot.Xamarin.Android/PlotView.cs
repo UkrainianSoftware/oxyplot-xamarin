@@ -367,6 +367,18 @@ namespace OxyPlot.Xamarin.Android
                 this.rc.SetTarget(canvas);
                 
                 ((IPlotModel)actualModel).Render(this.rc, Width / Scale, Height / Scale);
+
+                if (_isTrackerVerticalLineVisible)
+                {
+                    var verticalLinePen = new OxyPen(color: OxyColors.Black);
+
+                    this.rc.DrawLine(
+                        x0: _lastTrackerHitResult.Position.X,
+                        y0: actualModel.PlotArea.Bottom,
+                        x1: _lastTrackerHitResult.Position.X,
+                        y1: actualModel.PlotArea.Top,
+                        pen: verticalLinePen);
+                }
             }
         }
 
@@ -409,5 +421,6 @@ namespace OxyPlot.Xamarin.Android
 
 
         private bool _isTrackerVerticalLineVisible = false;
+        private TrackerHitResult _lastTrackerHitResult = null;
     }
 }
