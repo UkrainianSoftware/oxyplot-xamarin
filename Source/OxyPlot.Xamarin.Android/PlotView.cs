@@ -375,9 +375,9 @@ namespace OxyPlot.Xamarin.Android
 
                     this.rc.DrawLine(
                         x0: _lastTrackerHitResult.Position.X,
-                        y0: actualModel.PlotArea.Bottom,
+                        y0: actualModel.PlotAndAxisArea.Bottom,
                         x1: _lastTrackerHitResult.Position.X,
-                        y1: actualModel.PlotArea.Top,
+                        y1: actualModel.PlotAndAxisArea.Top,
                         pen: verticalLinePen);
                 }
             }
