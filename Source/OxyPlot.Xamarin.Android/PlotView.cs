@@ -255,6 +255,7 @@ namespace OxyPlot.Xamarin.Android
                 $"[oxyplot] [droid] ShowTracker() | x={trackerHitResult.Position.X} ; y={trackerHitResult.Position.Y} | Item={trackerHitResult.Item}");
 #endif
 
+            this._lastTrackerHitResult = trackerHitResult;
             this._isTrackerVerticalLineVisible = true;
             InvalidatePlot(updateData: false);
         }
