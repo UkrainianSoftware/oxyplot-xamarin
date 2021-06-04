@@ -305,6 +305,11 @@ namespace OxyPlot.Xamarin.iOS
         {
             // TODO: how to show a tracker on iOS
             // the tracker must be moved away from the finger...
+
+#if DEBUG
+            System.Console.WriteLine(
+                $"[oxyplot] [ios] ShowTracker() | x={trackerHitResult.Position.X} ; y={trackerHitResult.Position.Y} | Item={trackerHitResult.Item}");
+#endif
         }
 
         /// <summary>

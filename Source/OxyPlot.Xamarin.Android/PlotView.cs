@@ -248,6 +248,10 @@ namespace OxyPlot.Xamarin.Android
         /// <param name="trackerHitResult">The tracker data.</param>
         public void ShowTracker(TrackerHitResult trackerHitResult)
         {
+#if DEBUG
+            System.Console.WriteLine(
+                $"[oxyplot] [droid] ShowTracker() | x={trackerHitResult.Position.X} ; y={trackerHitResult.Position.Y} | Item={trackerHitResult.Item}");
+#endif
         }
 
         /// <summary>
