@@ -210,6 +210,8 @@ namespace OxyPlot.Xamarin.Android
         /// </summary>
         public void HideTracker()
         {
+            this._isTrackerVerticalLineVisible = false;
+            InvalidatePlot(updateData: false);
         }
 
         /// <summary>
@@ -252,6 +254,9 @@ namespace OxyPlot.Xamarin.Android
             System.Console.WriteLine(
                 $"[oxyplot] [droid] ShowTracker() | x={trackerHitResult.Position.X} ; y={trackerHitResult.Position.Y} | Item={trackerHitResult.Item}");
 #endif
+
+            this._isTrackerVerticalLineVisible = true;
+            InvalidatePlot(updateData: false);
         }
 
         /// <summary>
@@ -401,5 +406,8 @@ namespace OxyPlot.Xamarin.Android
         {
             return this.ActualController.HandleTouchCompleted(this, e.ToTouchEventArgs(Scale));
         }
+
+
+        private bool _isTrackerVerticalLineVisible = false;
     }
 }
