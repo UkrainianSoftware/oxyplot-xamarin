@@ -461,13 +461,15 @@ namespace OxyPlot.Xamarin.Android
                     var castedLineSeries = someLineSeries as LineSeries;
                     DataPoint nearestDataPoint = castedLineSeries.Points[indexOfNearestDataPoint];
 
-                    // TODO: [@dodikk] should we convert DataPoint.XY ==> Screen.XY
-                    // -
+                    ScreenPoint screenCoordinatesOfNearestDataPoint = 
+                        castedLineSeries.Transform(nearestDataPoint);
+
+                    double trackerLineX = screenCoordinatesOfNearestDataPoint.X;
 
                     this.rc.DrawLine(
-                        x0: nearestDataPoint.X,
+                        x0: trackerLineX,
                         y0: actualModel.PlotAndAxisArea.Bottom,
-                        x1: nearestDataPoint.X,
+                        x1: trackerLineX,
                         y1: actualModel.PlotAndAxisArea.Top,
                         pen: verticalLinePen);
                 }
