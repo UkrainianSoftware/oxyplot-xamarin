@@ -373,10 +373,30 @@ namespace OxyPlot.Xamarin.Android
                 {
                     var verticalLinePen = new OxyPen(color: OxyColors.Black);
 
+                    int indexOfNearestDataPoint =
+                        (int)Math.Round(_lastTrackerHitResult.Index);
+
+                    double xCoordinateOfHitTest =
+                        _lastTrackerHitResult.Position.X;
+
+                    // TODO: [xm-939] handle null or negative index properly
+                    //       if that even happens "in real life"
+                    // ---
+                    // maybe need a more precise "zero delta"
+                    // like 0.1 or 0.001
+                    // -
+                    double screenLengthPerHorizontalIndexPoint =
+                        (_lastTrackerHitResult.Index <= 1)
+                        ? (double)1
+                        : xCoordinateOfHitTest / _lastTrackerHitResult.Index;
+
+                    double xCoordinateNormalized =
+                        indexOfNearestDataPoint * screenLengthPerHorizontalIndexPoint;
+
                     this.rc.DrawLine(
-                        x0: _lastTrackerHitResult.Position.X,
+                        x0: xCoordinateNormalized, //_lastTrackerHitResult.Position.X,
                         y0: actualModel.PlotAndAxisArea.Bottom,
-                        x1: _lastTrackerHitResult.Position.X,
+                        x1: xCoordinateNormalized, //_lastTrackerHitResult.Position.X,
                         y1: actualModel.PlotAndAxisArea.Top,
                         pen: verticalLinePen);
                 }
