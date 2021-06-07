@@ -416,14 +416,14 @@ namespace OxyPlot.Xamarin.Android
                     allSeries.Where(s => s is LineSeries)
                              .FirstOrDefault();
 
+                int indexOfNearestDataPoint =
+                    (int)Math.Round(_lastTrackerHitResult.Index);
+
                 if (someLineSeries == null)
                 {
                     // Note: [@dodikk] less precise calculation.
                     // But might somehow work with other series like columns, etc
                     // -
-                    int indexOfNearestDataPoint =
-                        (int)Math.Round(_lastTrackerHitResult.Index);
-
                     double xCoordinateOfHitTest =
                         _lastTrackerHitResult.Position.X;
 
@@ -457,6 +457,19 @@ namespace OxyPlot.Xamarin.Android
                     // like in the Stocks.app
                     // for few data points
                     // -
+
+                    var castedLineSeries = someLineSeries as LineSeries;
+                    DataPoint nearestDataPoint = castedLineSeries.Points[indexOfNearestDataPoint];
+
+                    // TODO: [@dodikk] should we convert DataPoint.XY ==> Screen.XY
+                    // -
+
+                    this.rc.DrawLine(
+                        x0: nearestDataPoint.X,
+                        y0: actualModel.PlotAndAxisArea.Bottom,
+                        x1: nearestDataPoint.X,
+                        y1: actualModel.PlotAndAxisArea.Top,
+                        pen: verticalLinePen);
                 }
             }
             else
