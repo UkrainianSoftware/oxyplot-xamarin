@@ -45,11 +45,24 @@ namespace OxyPlot.Xamarin.Forms
                 returnType: typeof(bool),
                 declaringType: typeof(PlotView));
 
+        public static readonly BindableProperty IsTrackerLineShouldMatchDataPointsExactlyProperty =
+            BindableProperty.Create(
+                propertyName: nameof(IsTrackerLineShouldMatchDataPointsExactly),
+                returnType: typeof(bool),
+                declaringType: typeof(PlotView),
+                defaultValue: false);
+
 
         public bool IsZoomingAndPanningGestureAllowed
         {
             get { return (bool)this.GetValue(IsZoomingAndPanningGestureAllowedProperty); }
             set { this.SetValue(IsZoomingAndPanningGestureAllowedProperty, value); }
+        }
+
+        public bool IsTrackerLineShouldMatchDataPointsExactly
+        {
+            get { return (bool)this.GetValue(IsTrackerLineShouldMatchDataPointsExactlyProperty); }
+            set { this.SetValue(IsTrackerLineShouldMatchDataPointsExactlyProperty, value); }
         }
 
         /// <summary>

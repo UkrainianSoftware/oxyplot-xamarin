@@ -123,7 +123,7 @@ namespace OxyPlot.Xamarin.iOS
         }
 
         public bool IsZoomingAndPanningGestureAllowed { get; set; } = true;
-             
+        public bool IsTrackerLineShouldMatchDataPointsExactly { get; set; } = false;
 
         /// <summary>
         /// Gets or sets the <see cref="PlotModel"/> to show in the view. 
