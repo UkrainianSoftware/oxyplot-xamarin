@@ -10,6 +10,7 @@
 namespace OxyPlot.Xamarin.Android
 {
     using System;
+    using System.Linq;
 
     using global::Android.Content;
     using global::Android.Graphics;
@@ -17,6 +18,8 @@ namespace OxyPlot.Xamarin.Android
     using global::Android.Views;
 
     using OxyPlot;
+    using OxyPlot.Series;
+
 
     /// <summary>
     /// Represents a view that can show a <see cref="PlotModel" />.
@@ -371,49 +374,107 @@ namespace OxyPlot.Xamarin.Android
                 
                 ((IPlotModel)actualModel).Render(this.rc, Width / Scale, Height / Scale);
 
-                if (_isTrackerVerticalLineVisible)
+                DrawVerticalLineOfTrackerIfNeeded(onCanvas: canvas);
+            }
+        }
+
+        private void DrawVerticalLineOfTrackerIfNeeded(Canvas onCanvas)
+        {
+            Canvas canvas = onCanvas;
+
+            if (!_isTrackerVerticalLineVisible)
+            {
+                return;
+            }
+
+            var actualModel = this.ActualModel;
+            if (actualModel == null)
+            {
+                return;
+            }
+
+            var verticalLinePen = new OxyPen(color: OxyColors.Black);
+
+            var allSeries = actualModel.Series;
+            if (allSeries == null || !allSeries.Any())
+            {
+                // Note: [@dodikk] typically this is not supposed to happen
+                // but when it does - just draw the line "as is"
+                // ---
+                // might be a good idea to NOT draw that vertical line at all
+                // -
+                this.rc.DrawLine(
+                    x0: _lastTrackerHitResult.Position.X,
+                    y0: actualModel.PlotAndAxisArea.Bottom,
+                    x1: _lastTrackerHitResult.Position.X,
+                    y1: actualModel.PlotAndAxisArea.Top,
+                    pen: verticalLinePen);
+            }
+            else if (IsTrackerLineShouldMatchDataPointsExactly)
+            {
+                var someLineSeries =
+                    allSeries.Where(s => s is LineSeries)
+                             .FirstOrDefault();
+
+                if (someLineSeries == null)
                 {
-                    var verticalLinePen = new OxyPen(color: OxyColors.Black);
+                    // Note: [@dodikk] less precise calculation.
+                    // But might somehow work with other series like columns, etc
+                    // -
+                    int indexOfNearestDataPoint =
+                        (int)Math.Round(_lastTrackerHitResult.Index);
 
-                    if (IsTrackerLineShouldMatchDataPointsExactly)
-                    {
-                        int indexOfNearestDataPoint =
-                            (int)Math.Round(_lastTrackerHitResult.Index);
+                    double xCoordinateOfHitTest =
+                        _lastTrackerHitResult.Position.X;
 
-                        double xCoordinateOfHitTest =
-                            _lastTrackerHitResult.Position.X;
+                    // TODO: [xm-939] handle null or negative index properly
+                    //       if that even happens "in real life"
+                    // ---
+                    // maybe need a more precise "zero delta"
+                    // like 0.1 or 0.001
+                    // -
+                    double screenLengthPerHorizontalIndexPoint =
+                        (_lastTrackerHitResult.Index <= 1)
+                        ? (double)1
+                        : xCoordinateOfHitTest / _lastTrackerHitResult.Index;
 
-                        // TODO: [xm-939] handle null or negative index properly
-                        //       if that even happens "in real life"
-                        // ---
-                        // maybe need a more precise "zero delta"
-                        // like 0.1 or 0.001
-                        // -
-                        double screenLengthPerHorizontalIndexPoint =
-                            (_lastTrackerHitResult.Index <= 1)
-                            ? (double)1
-                            : xCoordinateOfHitTest / _lastTrackerHitResult.Index;
+                    double xCoordinateNormalized =
+                        indexOfNearestDataPoint * screenLengthPerHorizontalIndexPoint;
 
-                        double xCoordinateNormalized =
-                            indexOfNearestDataPoint * screenLengthPerHorizontalIndexPoint;
-
-                        this.rc.DrawLine(
-                            x0: xCoordinateNormalized, //_lastTrackerHitResult.Position.X,
-                            y0: actualModel.PlotAndAxisArea.Bottom,
-                            x1: xCoordinateNormalized, //_lastTrackerHitResult.Position.X,
-                            y1: actualModel.PlotAndAxisArea.Top,
-                            pen: verticalLinePen);
-                    }
-                    else
-                    {
-                        this.rc.DrawLine(
-                            x0: _lastTrackerHitResult.Position.X,
-                            y0: actualModel.PlotAndAxisArea.Bottom,
-                            x1: _lastTrackerHitResult.Position.X,
-                            y1: actualModel.PlotAndAxisArea.Top,
-                            pen: verticalLinePen);
-                    }
+                    this.rc.DrawLine(
+                        x0: xCoordinateNormalized, //_lastTrackerHitResult.Position.X,
+                        y0: actualModel.PlotAndAxisArea.Bottom,
+                        x1: xCoordinateNormalized, //_lastTrackerHitResult.Position.X,
+                        y1: actualModel.PlotAndAxisArea.Top,
+                        pen: verticalLinePen);
                 }
+                else
+                {
+                    // Note: [@dodikk] more precise calculation.
+                    // tailored specifically for line series
+                    // ---
+                    // aiming for behaviour
+                    // like in the Stocks.app
+                    // for few data points
+                    // -
+                }
+            }
+            else
+            {
+                // Note: [@dodikk] coordinates "as is" are good for large datasets
+                // when all data points do not fit into canvas pixels
+                // and some interpolation happens
+                // ---
+                // Highlighting individual points makes no sense in this case
+                // so the logic above is not needed
+                // -
+
+                this.rc.DrawLine(
+                    x0: _lastTrackerHitResult.Position.X,
+                    y0: actualModel.PlotAndAxisArea.Bottom,
+                    x1: _lastTrackerHitResult.Position.X,
+                    y1: actualModel.PlotAndAxisArea.Top,
+                    pen: verticalLinePen);
             }
         }
 
