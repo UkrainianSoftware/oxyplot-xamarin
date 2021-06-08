@@ -79,6 +79,11 @@ namespace OxyPlot
         /// <param name="e">The <see cref="OxyPlot.OxyTouchEventArgs" /> instance containing the event data.</param>
         public override void Delta(OxyTouchEventArgs e)
         {
+            // Note: [@dodikk] touchesMoved does not generate this event for some reason
+            // ---
+            // https://github.com/oxyplot/oxyplot/blob/075d1b3808946e0661c0544af248dfdc3a898ebc/Source/OxyPlot/Graphics/ControllerBase.cs#L254
+            // -
+
             base.Delta(e);
 
             // Note: [@dodikk] expecting |this.currentSeries| to be set in Started()
