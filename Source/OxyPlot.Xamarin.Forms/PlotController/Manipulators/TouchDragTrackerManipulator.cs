@@ -22,7 +22,7 @@ namespace OxyPlot
         {
             this.Snap = true;
             this.PointsOnly = false;
-            this.LockToInitialSeries = false;
+            this.LockToInitialSeries = true; // false ==> MouseDown is not delievered on ios
             this.FiresDistance = 20.0;
             this.CheckDistanceBetweenPoints = false;
 
