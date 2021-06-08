@@ -380,6 +380,14 @@ namespace OxyPlot.Xamarin.Android
 
         private void DrawVerticalLineOfTrackerIfNeeded(Canvas onCanvas)
         {
+            // TODO: [@dodikk] might not need the logic below
+            // with PlotCommands.PointsOnlyTrackTouch
+            // ---
+            // https://github.com/oxyplot/oxyplot/blob/075d1b3808946e0661c0544af248dfdc3a898ebc/Source/OxyPlot/PlotController/PlotCommands.cs#L45
+            // https://github.com/oxyplot/oxyplot/blob/075d1b3808946e0661c0544af248dfdc3a898ebc/Source/OxyPlot/PlotController/Manipulators/TouchTrackerManipulator.cs
+            // -
+
+
             Canvas canvas = onCanvas;
 
             if (!_isTrackerVerticalLineVisible)
@@ -393,7 +401,15 @@ namespace OxyPlot.Xamarin.Android
                 return;
             }
 
-            var verticalLinePen = new OxyPen(color: OxyColors.Black);
+            // TODO: [@dodikk] maybe expose as bindings of PlotView
+            // * in case our other charts need different colors
+            // * or before sending a PR to lib maintainers
+            // -
+            var verticalLinePen = new OxyPen(
+                    color: OxyColors.Black,
+                    thickness: 2,
+                    lineStyle: LineStyle.Solid);
+
 
             var allSeries = actualModel.Series;
             if (allSeries == null || !allSeries.Any())
@@ -413,7 +429,9 @@ namespace OxyPlot.Xamarin.Android
             else if (IsTrackerLineShouldMatchDataPointsExactly)
             {
                 var someLineSeries =
-                    allSeries.Where(s => s is LineSeries)
+                    allSeries.Where(s => s != null)
+                             .Where(s => s is LineSeries)
+                             .Select(s => s as LineSeries)
                              .FirstOrDefault();
 
                 int indexOfNearestDataPoint =
@@ -458,20 +476,43 @@ namespace OxyPlot.Xamarin.Android
                     // for few data points
                     // -
 
+                    
                     var castedLineSeries = someLineSeries as LineSeries;
-                    DataPoint nearestDataPoint = castedLineSeries.Points[indexOfNearestDataPoint];
+                    int totalNumberOfDataPoints = castedLineSeries.Points.Count();
 
-                    ScreenPoint screenCoordinatesOfNearestDataPoint = 
-                        castedLineSeries.Transform(nearestDataPoint);
+                    // Note: [@dodikk] cannot use PlotView binding
+                    // since that freezes droid app
+                    // no idea how to avoid hardcode yet
+                    // -
+                    int smallDatasetPointsCount = 32; // dataset of one month +-1 day
 
-                    double trackerLineX = screenCoordinatesOfNearestDataPoint.X;
+                    bool isSmallDataset = (totalNumberOfDataPoints <= smallDatasetPointsCount);
 
-                    this.rc.DrawLine(
-                        x0: trackerLineX,
-                        y0: actualModel.PlotAndAxisArea.Bottom,
-                        x1: trackerLineX,
-                        y1: actualModel.PlotAndAxisArea.Top,
-                        pen: verticalLinePen);
+                    if (isSmallDataset)
+                    {
+                        DataPoint nearestDataPoint = castedLineSeries.Points[indexOfNearestDataPoint];
+
+                        ScreenPoint screenCoordinatesOfNearestDataPoint =
+                            castedLineSeries.Transform(nearestDataPoint);
+
+                        double trackerLineX = screenCoordinatesOfNearestDataPoint.X;
+
+                        this.rc.DrawLine(
+                            x0: trackerLineX,
+                            y0: actualModel.PlotAndAxisArea.Bottom,
+                            x1: trackerLineX,
+                            y1: actualModel.PlotAndAxisArea.Top,
+                            pen: verticalLinePen);
+                    }
+                    else
+                    {
+                        this.rc.DrawLine(
+                            x0: _lastTrackerHitResult.Position.X,
+                            y0: actualModel.PlotAndAxisArea.Bottom,
+                            x1: _lastTrackerHitResult.Position.X,
+                            y1: actualModel.PlotAndAxisArea.Top,
+                            pen: verticalLinePen);
+                    }
                 }
             }
             else
@@ -503,6 +544,12 @@ namespace OxyPlot.Xamarin.Android
             var args = e.ToTouchEventArgs(Scale);
             var handled = this.ActualController.HandleTouchStarted(this, args);
             this.previousTouchPoints = e.GetTouchPoints(Scale);
+
+
+            // Note: [@dodikk] [proto] for some reason Manipulator.Delta() is not called
+            // trying to tinker with this result
+            // |return false| does not help
+            // -
             return handled;
         }
 
@@ -527,7 +574,8 @@ namespace OxyPlot.Xamarin.Android
         /// <returns><c>true</c> if the event was handled.</returns>
         private bool OnTouchUpEvent(MotionEvent e)
         {
-            return this.ActualController.HandleTouchCompleted(this, e.ToTouchEventArgs(Scale));
+            bool result = this.ActualController.HandleTouchCompleted(this, e.ToTouchEventArgs(Scale));
+            return result;
         }
 
 
