@@ -22,7 +22,7 @@ namespace OxyPlot
         {
             this.Snap = true;
             this.PointsOnly = false;
-            this.LockToInitialSeries = true;
+            this.LockToInitialSeries = false;
             this.FiresDistance = 20.0;
             this.CheckDistanceBetweenPoints = false;
 
@@ -81,8 +81,11 @@ namespace OxyPlot
         {
             base.Delta(e);
 
-            // This is touch, we want to hide the tracker because the user is probably panning / zooming now
-            this.PlotView.HideTracker();
+            // Note: [@dodikk] expecting |this.currentSeries| to be set in Started()
+            // might be a good idea to
+            // |if (null == this.currentSeries) return;|
+            // -
+            UpdateTracker(e.Position);
         }
 
         /// <summary>
