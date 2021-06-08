@@ -24,4 +24,9 @@
     </PackageReference>
     <PackageReference Include="NuGet.Packaging" Version="5.6.0" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="PlotController\" />
+    <Folder Include="PlotController\Manipulators\" />
+    <Folder Include="Utilities\" />
+  </ItemGroup>
 </Project>
