@@ -9,9 +9,16 @@
 
 namespace OxyPlot.Xamarin.iOS
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
     using Foundation;
-    using OxyPlot;
     using UIKit;
+
+    using OxyPlot;
+    using OxyPlot.Series;
+
 
     /// <summary>
     /// Provides a view that can show a <see cref="PlotModel" />. 
@@ -33,6 +40,8 @@ namespace OxyPlot.Xamarin.iOS
         /// The pan zoom gesture recognizer
         /// </summary>
         private readonly PanZoomGestureRecognizer panZoomGesture = new PanZoomGestureRecognizer();
+
+             
 
         /// <summary>
         /// The tap gesture recognizer
@@ -263,6 +272,8 @@ namespace OxyPlot.Xamarin.iOS
         /// </summary>
         public void HideTracker()
         {
+            _isTrackerVerticalLineVisible = false;
+            InvalidatePlot(updateData: false);
         }
 
         /// <summary>
@@ -310,6 +321,11 @@ namespace OxyPlot.Xamarin.iOS
             System.Console.WriteLine(
                 $"[oxyplot] [ios] ShowTracker() | x={trackerHitResult.Position.X} ; y={trackerHitResult.Position.Y} | Item={trackerHitResult.Item}");
 #endif
+
+            _lastTrackerHitResult = trackerHitResult;
+            _isTrackerVerticalLineVisible = true;
+
+            InvalidatePlot(updateData: false);
         }
 
         /// <summary>
@@ -349,6 +365,12 @@ namespace OxyPlot.Xamarin.iOS
                     }
 
                     actualModel.Render(renderer, rect.Width, rect.Height);
+
+                    DrawVerticalLineOfTrackerIfNeeded(
+                        rect,
+                        this.model,
+                        renderer,
+                        context);
                 }
             }
         }
@@ -416,5 +438,209 @@ namespace OxyPlot.Xamarin.iOS
             this.ActualController.HandleTouchStarted(this, location.ToTouchEventArgs());
             this.ActualController.HandleTouchCompleted(this, location.ToTouchEventArgs());
 		}
+
+
+        private void DrawVerticalLineOfTrackerIfNeeded(
+            CoreGraphics.CGRect rect,
+            PlotModel actualModel,
+            CoreGraphicsRenderContext renderer,
+            CoreGraphics.CGContext context)
+        {
+            // TODO: [@dodikk] might not need the logic below
+            // with PlotCommands.PointsOnlyTrackTouch
+            // ---
+            // https://github.com/oxyplot/oxyplot/blob/075d1b3808946e0661c0544af248dfdc3a898ebc/Source/OxyPlot/PlotController/PlotCommands.cs#L45
+            // https://github.com/oxyplot/oxyplot/blob/075d1b3808946e0661c0544af248dfdc3a898ebc/Source/OxyPlot/PlotController/Manipulators/TouchTrackerManipulator.cs
+            // -
+
+            if (!_isTrackerVerticalLineVisible)
+            {
+                return;
+            }
+
+            // TODO: [@dodikk] maybe expose as bindings of PlotView
+            // * in case our other charts need different colors
+            // * or before sending a PR to lib maintainers
+            // -
+            var verticalLinePen = new OxyPen(
+                    color: OxyColors.Black,
+                    thickness: 2,
+                    lineStyle: LineStyle.Solid);
+
+
+            var allSeries = actualModel.Series;
+            if (allSeries == null || !allSeries.Any())
+            {
+                // Note: [@dodikk] typically this is not supposed to happen
+                // but when it does - just draw the line "as is"
+                // ---
+                // might be a good idea to NOT draw that vertical line at all
+                // -
+
+                renderer.DrawLine(
+                    points: new List<ScreenPoint>()
+                    {
+                        new ScreenPoint(
+                            _lastTrackerHitResult.Position.X,
+                            actualModel.PlotAndAxisArea.Bottom),
+                        new ScreenPoint(
+                            _lastTrackerHitResult.Position.X,
+                            actualModel.PlotAndAxisArea.Top),
+                    },
+                    stroke: verticalLinePen.Color,
+                    thickness: verticalLinePen.Thickness,
+                    dashArray: null,
+                    lineJoin: verticalLinePen.LineJoin,
+                    aliased: false);
+            }
+            else if (IsTrackerLineShouldMatchDataPointsExactly)
+            {
+                var someLineSeries =
+                    allSeries.Where(s => s != null)
+                             .Where(s => s is LineSeries)
+                             .Select(s => s as LineSeries)
+                             .FirstOrDefault();
+
+                int indexOfNearestDataPoint =
+                    (int)Math.Round(_lastTrackerHitResult.Index);
+
+                if (someLineSeries == null)
+                {
+                    // Note: [@dodikk] less precise calculation.
+                    // But might somehow work with other series like columns, etc
+                    // -
+                    double xCoordinateOfHitTest =
+                        _lastTrackerHitResult.Position.X;
+
+                    // TODO: [xm-939] handle null or negative index properly
+                    //       if that even happens "in real life"
+                    // ---
+                    // maybe need a more precise "zero delta"
+                    // like 0.1 or 0.001
+                    // -
+                    double screenLengthPerHorizontalIndexPoint =
+                        (_lastTrackerHitResult.Index <= 1)
+                        ? (double)1
+                        : xCoordinateOfHitTest / _lastTrackerHitResult.Index;
+
+                    double xCoordinateNormalized =
+                        indexOfNearestDataPoint * screenLengthPerHorizontalIndexPoint;
+
+
+                    renderer.DrawLine(
+                        points: new List<ScreenPoint>()
+                        {
+                            new ScreenPoint(
+                                xCoordinateNormalized, //_lastTrackerHitResult.Position.X,
+                                actualModel.PlotAndAxisArea.Bottom),
+                            new ScreenPoint(
+                                xCoordinateNormalized, //_lastTrackerHitResult.Position.X,
+                                actualModel.PlotAndAxisArea.Top),
+                        },
+                        stroke: verticalLinePen.Color,
+                        thickness: verticalLinePen.Thickness,
+                        dashArray: null,
+                        lineJoin: verticalLinePen.LineJoin,
+                        aliased: false);
+                }
+                else
+                {
+                    // Note: [@dodikk] more precise calculation.
+                    // tailored specifically for line series
+                    // ---
+                    // aiming for behaviour
+                    // like in the Stocks.app
+                    // for few data points
+                    // -
+
+
+                    var castedLineSeries = someLineSeries as LineSeries;
+                    int totalNumberOfDataPoints = castedLineSeries.Points.Count();
+
+                    // Note: [@dodikk] cannot use PlotView binding
+                    // since that freezes droid app
+                    // no idea how to avoid hardcode yet
+                    // -
+                    int smallDatasetPointsCount = 32; // dataset of one month +-1 day
+
+                    bool isSmallDataset = (totalNumberOfDataPoints <= smallDatasetPointsCount);
+
+                    if (isSmallDataset)
+                    {
+                        DataPoint nearestDataPoint = castedLineSeries.Points[indexOfNearestDataPoint];
+
+                        ScreenPoint screenCoordinatesOfNearestDataPoint =
+                            castedLineSeries.Transform(nearestDataPoint);
+
+                        double trackerLineX = screenCoordinatesOfNearestDataPoint.X;
+
+
+                        renderer.DrawLine(
+                            points: new List<ScreenPoint>()
+                            {
+                                new ScreenPoint(
+                                    trackerLineX,
+                                    actualModel.PlotAndAxisArea.Bottom),
+                                new ScreenPoint(
+                                    trackerLineX,
+                                    actualModel.PlotAndAxisArea.Top),
+                            },
+                            stroke: verticalLinePen.Color,
+                            thickness: verticalLinePen.Thickness,
+                            dashArray: null,
+                            lineJoin: verticalLinePen.LineJoin,
+                            aliased: false);
+                    }
+                    else
+                    {
+                        renderer.DrawLine(
+                            points: new List<ScreenPoint>()
+                            {
+                                new ScreenPoint(
+                                    _lastTrackerHitResult.Position.X,
+                                    actualModel.PlotAndAxisArea.Bottom),
+                                new ScreenPoint(
+                                    _lastTrackerHitResult.Position.X,
+                                    actualModel.PlotAndAxisArea.Top),
+                            },
+                            stroke: verticalLinePen.Color,
+                            thickness: verticalLinePen.Thickness,
+                            dashArray: null,
+                            lineJoin: verticalLinePen.LineJoin,
+                            aliased: false);
+                    }
+                }
+            }
+            else
+            {
+                // Note: [@dodikk] coordinates "as is" are good for large datasets
+                // when all data points do not fit into canvas pixels
+                // and some interpolation happens
+                // ---
+                // Highlighting individual points makes no sense in this case
+                // so the logic above is not needed
+                // -
+
+                renderer.DrawLine(
+                    points: new List<ScreenPoint>()
+                    {
+                        new ScreenPoint(
+                            _lastTrackerHitResult.Position.X,
+                            actualModel.PlotAndAxisArea.Bottom),
+                        new ScreenPoint(
+                            _lastTrackerHitResult.Position.X,
+                            actualModel.PlotAndAxisArea.Top),
+                    },
+                    stroke: verticalLinePen.Color,
+                    thickness: verticalLinePen.Thickness,
+                    dashArray: null,
+                    lineJoin: verticalLinePen.LineJoin,
+                    aliased: false);
+            }
+        }
+
+
+        private bool _isTrackerVerticalLineVisible = false;
+        private TrackerHitResult _lastTrackerHitResult = null;
     }
 }
