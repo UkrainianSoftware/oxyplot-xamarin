@@ -287,16 +287,16 @@ namespace OxyPlot.Xamarin.Android
         /// <param name="keyCode">The key code.</param>
         /// <param name="e">The event arguments.</param>
         /// <returns><c>true</c> if the event was handled.</returns>
-        public override bool OnKeyDown(Keycode keyCode, KeyEvent e)
-        {
-            var handled = base.OnKeyDown(keyCode, e);
-            if (!handled)
-            {
-                handled = this.ActualController.HandleKeyDown(this, e.ToKeyEventArgs());
-            }
-
-            return handled;
-        }
+        //public override bool OnKeyDown(Keycode keyCode, KeyEvent e)
+        //{
+        //    var handled = base.OnKeyDown(keyCode, e);
+        //    if (!handled)
+        //    {
+        //        handled = this.ActualController.HandleKeyDown(this, e.ToKeyEventArgs());
+        //    }
+        //
+        //    return handled;
+        //}
 
         /// <summary>
         /// Handles touch screen motion events.
@@ -305,10 +305,12 @@ namespace OxyPlot.Xamarin.Android
         /// <returns><c>true</c> if the event was handled.</returns>
         public override bool OnTouchEvent(MotionEvent e)
         {
-            var handled = base.OnTouchEvent(e);
-            if (!handled)
-            {
-                switch (e.Action)
+            //bool handled = true;
+
+            bool handled = base.OnTouchEvent(e);
+            //if (!handled)
+            //{
+                switch (e.ActionMasked)
                 {
                     case MotionEventActions.Down:
                         handled = this.OnTouchDownEvent(e);
@@ -320,7 +322,7 @@ namespace OxyPlot.Xamarin.Android
                         handled = this.OnTouchUpEvent(e);
                         break;
                 }
-            }
+            //}
 
             return handled;
         }
@@ -542,15 +544,18 @@ namespace OxyPlot.Xamarin.Android
         private bool OnTouchDownEvent(MotionEvent e)
         {
             var args = e.ToTouchEventArgs(Scale);
-            var handled = this.ActualController.HandleTouchStarted(this, args);
+            /*var handled*/ _ = this.ActualController.HandleTouchStarted(this, args);
             this.previousTouchPoints = e.GetTouchPoints(Scale);
 
 
             // Note: [@dodikk] [proto] for some reason Manipulator.Delta() is not called
             // trying to tinker with this result
-            // |return false| does not help
+            // Force |return false| ==> does not help
+            // Force |return true | ==> seems better than |return handled|
+            // (at least one OnTouchMoveEvent() arrives
+            //  but next events do not)
             // -
-            return handled;
+            return true;
         }
 
         /// <summary>
@@ -562,9 +567,27 @@ namespace OxyPlot.Xamarin.Android
         {
             var currentTouchPoints = e.GetTouchPoints(Scale);
             var args = new OxyTouchEventArgs(currentTouchPoints, this.previousTouchPoints);
-            var handled = this.ActualController.HandleTouchDelta(this, args);
+            /*var handled*/ _ = this.ActualController.HandleTouchDelta(this, args);
             this.previousTouchPoints = currentTouchPoints;
-            return handled;
+
+
+            // Note: [@dodikk] [proto] for some reason Manipulator.Delta() is not called
+            // trying to tinker with this result
+            // Force |return false| ==> does not help
+            // Force |return true | ==> ???
+            // -
+            return true;
+
+
+            // ???
+            // Thats the declaration of my activity. and to detect swipes i have implemented that:
+            // @Override
+            // public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
+            // https://stackoverflow.com/questions/13083871/method-ontouchevent-not-being-called
+            // ---
+            // [!] https://guides.codepath.com/android/Gestures-and-Touch-Events
+            // ---
+
         }
 
         /// <summary>
@@ -574,8 +597,8 @@ namespace OxyPlot.Xamarin.Android
         /// <returns><c>true</c> if the event was handled.</returns>
         private bool OnTouchUpEvent(MotionEvent e)
         {
-            bool result = this.ActualController.HandleTouchCompleted(this, e.ToTouchEventArgs(Scale));
-            return result;
+            /*bool result*/ _ = this.ActualController.HandleTouchCompleted(this, e.ToTouchEventArgs(Scale));
+            return true; // result;
         }
 
 
