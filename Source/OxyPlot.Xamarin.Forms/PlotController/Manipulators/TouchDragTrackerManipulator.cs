@@ -23,7 +23,16 @@ namespace OxyPlot
             this.Snap = true;
             this.PointsOnly = false;
             this.LockToInitialSeries = true; // false ==> MouseDown is not delievered on ios
-            this.FiresDistance = 20.0;
+
+            // Distance between point and line.
+            // Made it absurdly large enough for the sake of prototype
+            // If too narrow ==> no tracker visible
+            // ---
+            // since |this.currentSeries == null| ==> |OxyTouchEventArgs == null|
+            // -
+            this.FiresDistance = 200.0;
+
+
             this.CheckDistanceBetweenPoints = false;
 
             // Note: the tracker manipulator should not handle pan or zoom
@@ -90,6 +99,7 @@ namespace OxyPlot
             // might be a good idea to
             // |if (null == this.currentSeries) return;|
             // -
+            this.currentSeries = this.PlotView.ActualModel?.GetSeriesFromPoint(e.Position, this.FiresDistance);
             UpdateTracker(e.Position);
         }
 
@@ -100,8 +110,8 @@ namespace OxyPlot
         public override void Started(OxyTouchEventArgs e)
         {
             base.Started(e);
-            this.currentSeries = this.PlotView.ActualModel?.GetSeriesFromPoint(e.Position, this.FiresDistance);
 
+            this.currentSeries = this.PlotView.ActualModel?.GetSeriesFromPoint(e.Position, this.FiresDistance);
             UpdateTracker(e.Position);
         }
 
@@ -139,7 +149,12 @@ namespace OxyPlot
             }
 
             var result = Utilities.TrackerHelper.GetNearestHit(
-                this.currentSeries, position, this.Snap, this.PointsOnly, this.FiresDistance, this.CheckDistanceBetweenPoints);
+                this.currentSeries,
+                position,
+                this.Snap,
+                this.PointsOnly,
+                this.FiresDistance,
+                this.CheckDistanceBetweenPoints);
             if (result != null)
             {
                 result.PlotModel = this.PlotView.ActualModel;

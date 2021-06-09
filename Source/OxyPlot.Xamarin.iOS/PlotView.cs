@@ -272,6 +272,10 @@ namespace OxyPlot.Xamarin.iOS
         /// </summary>
         public void HideTracker()
         {
+            // Note: [proto] we might want to leave the tracker afterwards
+            //   if so, we should comment lines below
+            //   and move them to the TAP handler
+            // -
             _isTrackerVerticalLineVisible = false;
             InvalidatePlot(updateData: false);
         }
