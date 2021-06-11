@@ -586,6 +586,11 @@ namespace OxyPlot.Xamarin.Android
             // https://stackoverflow.com/questions/13083871/method-ontouchevent-not-being-called
             // ---
             // [!] https://guides.codepath.com/android/Gestures-and-Touch-Events
+            // https://xmonkeys360.com/2021/01/04/xamarin-android-gesture-detector/
+            // [?] https://github.com/softlion/XamarinFormsGesture/blob/master/XamarinFormsGesture/Android/PlatformGestureEffect.cs
+            // https://github.com/xamarin/xamarin-forms-samples/blob/main/Effects/TouchTrackingEffect/TouchTrackingEffect/TouchTrackingEffect.Droid/TouchEffect.cs
+            // https://github.com/xamarin/xamarin-forms-samples/blob/main/Effects/TouchTrackingEffect/TouchTrackingEffect/TouchTrackingEffect.Droid/TouchEffect.cs#L79
+            // https://gist.github.com/k3a/ef98593a3571b1b399169448327ad333
             // ---
 
         }
