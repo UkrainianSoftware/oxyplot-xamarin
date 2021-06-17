@@ -38,30 +38,35 @@ namespace OxyPlot.Xamarin.Forms.Utilities
                 return null;
             }
 
-            // Check data points only
-            if (snap || pointsOnly)
-            {
-                var result = series.GetNearestPoint(point, false);
-                if (ShouldTrackerOpen(result, point, firesDistance))
-                {
-                    return result;
-                }
-            }
+            TrackerHitResult result = series.GetNearestPoint(point, interpolate: true);
+            return result;
 
-            // Check between data points (if possible)
-            if (!pointsOnly)
-            {
-                var result = series.GetNearestPoint(point, true);
-                if (!checkDistanceBetweenPoints || ShouldTrackerOpen(result, point, firesDistance))
-                {
-                    return result;
-                }
-            }
 
-            return null;
+
+            //// Check data points only
+            //if (snap || pointsOnly)
+            //{
+            //    TrackerHitResult result = series.GetNearestPoint(point, interpolate: false);
+            //    if (ShouldTrackerOpen(result, point, firesDistance))
+            //    {
+            //        return result;
+            //    }
+            //}
+            //
+            //// Check between data points (if possible)
+            //if (!pointsOnly)
+            //{
+            //    TrackerHitResult result = series.GetNearestPoint(point, interpolate: true);
+            //    if (!checkDistanceBetweenPoints || ShouldTrackerOpen(result, point, firesDistance))
+            //    {
+            //        return result;
+            //    }
+            //}
+            //
+            //return null;
         }
 
-        private static bool ShouldTrackerOpen(TrackerHitResult result, ScreenPoint point, double firesDistance) =>
-            result?.Position.DistanceTo(point) < firesDistance;
+        private static bool ShouldTrackerOpen(TrackerHitResult result, ScreenPoint point, double firesDistance) => true;
+            // result?.Position.DistanceTo(point) < firesDistance;
     }
 }
