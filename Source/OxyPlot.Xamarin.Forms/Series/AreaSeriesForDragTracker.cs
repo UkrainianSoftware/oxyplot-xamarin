@@ -267,33 +267,38 @@ namespace OxyPlot
         /// <param name="p2">The second point on the line.</param>
         /// <returns>The nearest point on the line.</returns>
         /// <remarks>See <a href="http://paulbourke.net/geometry/pointlineplane/">Bourke</a>.</remarks>
-        public static ScreenPoint FindPointOnLine(
-            ScreenPoint p,
-            ScreenPoint p1,
-            ScreenPoint p2)
-        {
-            double dx = p2.X - p1.X;
-            double dy = p2.Y - p1.Y;
-            double u = FindPositionOnLine(p, p1, p2);
-
-            if (double.IsNaN(u))
-            {
-                u = 0;
-            }
-
-            if (u < 0)
-            {
-                u = 0;
-            }
-
-            if (u > 1)
-            {
-                u = 1;
-            }
-
-            return new ScreenPoint(p1.X + (u * dx), p1.Y + (u * dy));
-        }
-
+        //public static ScreenPoint FindPointOnLine(
+        //    ScreenPoint p,
+        //    ScreenPoint p1,
+        //    ScreenPoint p2)
+        //{
+        //    double dx = p2.X - p1.X;
+        //    double dy = 0; // p2.Y - p1.Y;
+        //    double u = FindPositionOnLine(p, p1, p2);
+        //
+        //    if (double.IsNaN(u))
+        //    {
+        //        u = 0;
+        //    }
+        //
+        //    if (u < 0)
+        //    {
+        //        u = 0;
+        //    }
+        //
+        //    if (u > 1)
+        //    {
+        //        u = 1;
+        //    }
+        //
+        //    var result = new ScreenPoint(
+        //        x: p1.X + (u * dx),
+        //        y: p1.Y + (u * dy));
+        //
+        //    return result;
+        //}
+        //
+        //
         /// <summary>
         /// Finds the nearest point on line.
         /// </summary>
@@ -302,22 +307,28 @@ namespace OxyPlot
         /// <param name="p2">The end point on the line.</param>
         /// <returns>The relative position of the nearest point.</returns>
         /// <remarks>See <a href="http://paulbourke.net/geometry/pointlineplane/">Bourke</a>.</remarks>
-        public static double FindPositionOnLine(
-            ScreenPoint p,
-            ScreenPoint p1,
-            ScreenPoint p2)
-        {
-            double dx = p2.X - p1.X;
-            double dy = p2.Y - p1.Y;
-            double u1 = ((p.X - p1.X) * dx) + ((p.Y - p1.Y) * dy);
-            double u2 = (dx * dx) + (dy * dy);
-
-            if (u2 < 1e-6)
-            {
-                return double.NaN;
-            }
-
-            return u1 / u2;
-        }
+        //public static double FindPositionOnLine(
+        //    ScreenPoint p,
+        //    ScreenPoint p1,
+        //    ScreenPoint p2)
+        //{
+        //    double dx = p2.X - p1.X;
+        //    double dy = 0; // p2.Y - p1.Y;
+        //
+        //    double u1 =
+        //        ((p.X - p1.X) * dx)
+        //      + ((p.Y - p1.Y) * dy);
+        //
+        //    double u2 =
+        //        (dx * dx)
+        //      + (dy * dy);
+        //
+        //    if (u2 < 1e-6)
+        //    {
+        //        return double.NaN;
+        //    }
+        //
+        //    return u1 / u2;
+        //}
     }
 }
