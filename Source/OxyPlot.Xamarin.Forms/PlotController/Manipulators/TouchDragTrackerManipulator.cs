@@ -1,4 +1,5 @@
-﻿using Utilities = OxyPlot.Xamarin.Forms.Utilities;
+﻿using System.Linq;
+using Utilities = OxyPlot.Xamarin.Forms.Utilities;
 
 
 namespace OxyPlot
@@ -99,9 +100,38 @@ namespace OxyPlot
             // might be a good idea to
             // |if (null == this.currentSeries) return;|
             // -
-            this.currentSeries = this.PlotView.ActualModel?.GetSeriesFromPoint(e.Position, this.FiresDistance);
+            // this.currentSeries = this.PlotView.ActualModel?.GetSeriesFromPoint(e.Position, this.FiresDistance);
+
+            this.currentSeries = GetSeriesForPoint(e.Position);
             UpdateTracker(e.Position);
         }
+
+        private Series.Series GetSeriesForPoint(ScreenPoint position)
+        {
+            // var result = GetSeriesForPointFairplay(e);
+
+            var result = GetSeriesForPointFirst(position);
+            return result;
+        }
+
+        private Series.Series GetSeriesForPointFairplay(ScreenPoint position)
+        {
+            var result = this.PlotView.ActualModel?.GetSeriesFromPoint(position, this.FiresDistance);
+            return result;
+        }
+
+        private Series.Series GetSeriesForPointFirst(ScreenPoint position)
+        {
+            var allSeries = this.PlotView.ActualModel?.Series;
+            if (allSeries == null || !allSeries.Any())
+            {
+                return null;
+            }
+
+            var result = allSeries[0];
+            return result;
+        }
+
 
         /// <summary>
         /// Occurs when an input device begins a manipulation on the plot.
@@ -111,7 +141,8 @@ namespace OxyPlot
         {
             base.Started(e);
 
-            this.currentSeries = this.PlotView.ActualModel?.GetSeriesFromPoint(e.Position, this.FiresDistance);
+            // this.currentSeries = this.PlotView.ActualModel?.GetSeriesFromPoint(e.Position, this.FiresDistance);
+            this.currentSeries = GetSeriesForPoint(e.Position);
             UpdateTracker(e.Position);
         }
 
@@ -124,7 +155,8 @@ namespace OxyPlot
             if (this.currentSeries == null || !this.LockToInitialSeries)
             {
                 // get the nearest
-                this.currentSeries = this.PlotView.ActualModel?.GetSeriesFromPoint(position, this.FiresDistance);
+                // this.currentSeries = this.PlotView.ActualModel?.GetSeriesFromPoint(position, this.FiresDistance);
+                this.currentSeries = GetSeriesForPoint(position);
             }
 
             if (this.currentSeries == null)
