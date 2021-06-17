@@ -59,7 +59,10 @@ namespace OxyPlot.Xamarin.Android
         {
             return new OxyTouchEventArgs
             {
-                Position = new ScreenPoint(e.GetX(e.ActionIndex) / scale, e.GetY(e.ActionIndex) / scale),
+                Position = new ScreenPoint(
+                    e.GetX(e.ActionIndex) / scale,
+                    0 /* e.GetY(e.ActionIndex) / scale */),
+
                 DeltaTranslation = new ScreenVector(0, 0),
                 DeltaScale = new ScreenVector(1, 1)
             };
@@ -76,7 +79,9 @@ namespace OxyPlot.Xamarin.Android
             var result = new ScreenPoint[e.PointerCount];
             for (int i = 0; i < e.PointerCount; i++)
             {
-                result[i] = new ScreenPoint(e.GetX(i) / scale, e.GetY(i) / scale);
+                result[i] = new ScreenPoint(
+                    e.GetX(i) / scale,
+                    0 /* e.GetY(i) / scale */);
             }
 
             return result;
