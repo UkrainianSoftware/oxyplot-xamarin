@@ -61,7 +61,7 @@ namespace OxyPlot.Xamarin.Android
             {
                 Position = new ScreenPoint(
                     e.GetX(e.ActionIndex) / scale,
-                    0 /* e.GetY(e.ActionIndex) / scale */),
+                    e.GetY(e.ActionIndex) / scale),
 
                 DeltaTranslation = new ScreenVector(0, 0),
                 DeltaScale = new ScreenVector(1, 1)
@@ -81,7 +81,7 @@ namespace OxyPlot.Xamarin.Android
             {
                 result[i] = new ScreenPoint(
                     e.GetX(i) / scale,
-                    0 /* e.GetY(i) / scale */);
+                    e.GetY(i) / scale);
             }
 
             return result;
