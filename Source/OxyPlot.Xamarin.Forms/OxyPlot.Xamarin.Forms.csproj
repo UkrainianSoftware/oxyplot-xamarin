@@ -28,5 +28,6 @@
     <Folder Include="PlotController\" />
     <Folder Include="PlotController\Manipulators\" />
     <Folder Include="Utilities\" />
+    <Folder Include="Series\" />
   </ItemGroup>
 </Project>
