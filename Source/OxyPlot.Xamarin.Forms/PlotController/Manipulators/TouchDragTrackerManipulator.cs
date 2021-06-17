@@ -108,9 +108,9 @@ namespace OxyPlot
 
         private Series.Series GetSeriesForPoint(ScreenPoint position)
         {
-            // var result = GetSeriesForPointFairplay(e);
+            var result = GetSeriesForPointFairplay(position);
+            // var result = GetSeriesForPointFirst(position);
 
-            var result = GetSeriesForPointFirst(position);
             return result;
         }
 
