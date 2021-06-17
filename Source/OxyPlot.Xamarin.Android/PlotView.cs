@@ -412,128 +412,142 @@ namespace OxyPlot.Xamarin.Android
                     thickness: 2,
                     lineStyle: LineStyle.Solid);
 
+            this.rc.DrawLine(
+                x0: _lastTrackerHitResult.Position.X,
+                y0: actualModel.PlotAndAxisArea.Bottom,
+                x1: _lastTrackerHitResult.Position.X,
+                y1: actualModel.PlotAndAxisArea.Top,
+                pen: verticalLinePen);
 
-            var allSeries = actualModel.Series;
-            if (allSeries == null || !allSeries.Any())
-            {
-                // Note: [@dodikk] typically this is not supposed to happen
-                // but when it does - just draw the line "as is"
-                // ---
-                // might be a good idea to NOT draw that vertical line at all
-                // -
-                this.rc.DrawLine(
-                    x0: _lastTrackerHitResult.Position.X,
-                    y0: actualModel.PlotAndAxisArea.Bottom,
-                    x1: _lastTrackerHitResult.Position.X,
-                    y1: actualModel.PlotAndAxisArea.Top,
-                    pen: verticalLinePen);
-            }
-            else if (IsTrackerLineShouldMatchDataPointsExactly)
-            {
-                var someLineSeries =
-                    allSeries.Where(s => s != null)
-                             .Where(s => s is LineSeries)
-                             .Select(s => s as LineSeries)
-                             .FirstOrDefault();
 
-                int indexOfNearestDataPoint =
-                    (int)Math.Round(_lastTrackerHitResult.Index);
+            // -----
+            // Note: the logic below makes tracker drag unexpected
+            //       so we've removed it.
+            // Might make sense for tap based tracker, etc.
+            // Feel free uncommenting it in that case.
+            // -----
 
-                if (someLineSeries == null)
-                {
-                    // Note: [@dodikk] less precise calculation.
-                    // But might somehow work with other series like columns, etc
-                    // -
-                    double xCoordinateOfHitTest =
-                        _lastTrackerHitResult.Position.X;
-
-                    // TODO: [xm-939] handle null or negative index properly
-                    //       if that even happens "in real life"
-                    // ---
-                    // maybe need a more precise "zero delta"
-                    // like 0.1 or 0.001
-                    // -
-                    double screenLengthPerHorizontalIndexPoint =
-                        (_lastTrackerHitResult.Index <= 1)
-                        ? (double)1
-                        : xCoordinateOfHitTest / _lastTrackerHitResult.Index;
-
-                    double xCoordinateNormalized =
-                        indexOfNearestDataPoint * screenLengthPerHorizontalIndexPoint;
-
-                    this.rc.DrawLine(
-                        x0: xCoordinateNormalized, //_lastTrackerHitResult.Position.X,
-                        y0: actualModel.PlotAndAxisArea.Bottom,
-                        x1: xCoordinateNormalized, //_lastTrackerHitResult.Position.X,
-                        y1: actualModel.PlotAndAxisArea.Top,
-                        pen: verticalLinePen);
-                }
-                else
-                {
-                    // Note: [@dodikk] more precise calculation.
-                    // tailored specifically for line series
-                    // ---
-                    // aiming for behaviour
-                    // like in the Stocks.app
-                    // for few data points
-                    // -
-
-                    
-                    var castedLineSeries = someLineSeries as LineSeries;
-                    int totalNumberOfDataPoints = castedLineSeries.Points.Count();
-
-                    // Note: [@dodikk] cannot use PlotView binding
-                    // since that freezes droid app
-                    // no idea how to avoid hardcode yet
-                    // -
-                    int smallDatasetPointsCount = 32; // dataset of one month +-1 day
-
-                    bool isSmallDataset = (totalNumberOfDataPoints <= smallDatasetPointsCount);
-
-                    if (isSmallDataset)
-                    {
-                        DataPoint nearestDataPoint = castedLineSeries.Points[indexOfNearestDataPoint];
-
-                        ScreenPoint screenCoordinatesOfNearestDataPoint =
-                            castedLineSeries.Transform(nearestDataPoint);
-
-                        double trackerLineX = screenCoordinatesOfNearestDataPoint.X;
-
-                        this.rc.DrawLine(
-                            x0: trackerLineX,
-                            y0: actualModel.PlotAndAxisArea.Bottom,
-                            x1: trackerLineX,
-                            y1: actualModel.PlotAndAxisArea.Top,
-                            pen: verticalLinePen);
-                    }
-                    else
-                    {
-                        this.rc.DrawLine(
-                            x0: _lastTrackerHitResult.Position.X,
-                            y0: actualModel.PlotAndAxisArea.Bottom,
-                            x1: _lastTrackerHitResult.Position.X,
-                            y1: actualModel.PlotAndAxisArea.Top,
-                            pen: verticalLinePen);
-                    }
-                }
-            }
-            else
-            {
-                // Note: [@dodikk] coordinates "as is" are good for large datasets
-                // when all data points do not fit into canvas pixels
-                // and some interpolation happens
-                // ---
-                // Highlighting individual points makes no sense in this case
-                // so the logic above is not needed
-                // -
-
-                this.rc.DrawLine(
-                    x0: _lastTrackerHitResult.Position.X,
-                    y0: actualModel.PlotAndAxisArea.Bottom,
-                    x1: _lastTrackerHitResult.Position.X,
-                    y1: actualModel.PlotAndAxisArea.Top,
-                    pen: verticalLinePen);
-            }
+            //var allSeries = actualModel.Series;
+            //if (allSeries == null || !allSeries.Any())
+            //{
+            //    // Note: [@dodikk] typically this is not supposed to happen
+            //    // but when it does - just draw the line "as is"
+            //    // ---
+            //    // might be a good idea to NOT draw that vertical line at all
+            //    // -
+            //    this.rc.DrawLine(
+            //        x0: _lastTrackerHitResult.Position.X,
+            //        y0: actualModel.PlotAndAxisArea.Bottom,
+            //        x1: _lastTrackerHitResult.Position.X,
+            //        y1: actualModel.PlotAndAxisArea.Top,
+            //        pen: verticalLinePen);
+            //}
+            //else if (IsTrackerLineShouldMatchDataPointsExactly)
+            //{
+            //    var someLineSeries =
+            //        allSeries.Where(s => s != null)
+            //                 .Where(s => s is LineSeries)
+            //                 .Select(s => s as LineSeries)
+            //                 .FirstOrDefault();
+            //
+            //    int indexOfNearestDataPoint =
+            //        (int)Math.Round(_lastTrackerHitResult.Index);
+            //
+            //    if (someLineSeries == null)
+            //    {
+            //        // Note: [@dodikk] less precise calculation.
+            //        // But might somehow work with other series like columns, etc
+            //        // -
+            //        double xCoordinateOfHitTest =
+            //            _lastTrackerHitResult.Position.X;
+            //
+            //        // TODO: [xm-939] handle null or negative index properly
+            //        //       if that even happens "in real life"
+            //        // ---
+            //        // maybe need a more precise "zero delta"
+            //        // like 0.1 or 0.001
+            //        // -
+            //        double screenLengthPerHorizontalIndexPoint =
+            //            (_lastTrackerHitResult.Index <= 1)
+            //            ? (double)1
+            //            : xCoordinateOfHitTest / _lastTrackerHitResult.Index;
+            //
+            //        double xCoordinateNormalized =
+            //            indexOfNearestDataPoint * screenLengthPerHorizontalIndexPoint;
+            //
+            //        this.rc.DrawLine(
+            //            x0: xCoordinateNormalized, //_lastTrackerHitResult.Position.X,
+            //            y0: actualModel.PlotAndAxisArea.Bottom,
+            //            x1: xCoordinateNormalized, //_lastTrackerHitResult.Position.X,
+            //            y1: actualModel.PlotAndAxisArea.Top,
+            //            pen: verticalLinePen);
+            //    }
+            //    else
+            //    {
+            //        // Note: [@dodikk] more precise calculation.
+            //        // tailored specifically for line series
+            //        // ---
+            //        // aiming for behaviour
+            //        // like in the Stocks.app
+            //        // for few data points
+            //        // -
+            //
+            //        
+            //        var castedLineSeries = someLineSeries as LineSeries;
+            //        int totalNumberOfDataPoints = castedLineSeries.Points.Count();
+            //
+            //        // Note: [@dodikk] cannot use PlotView binding
+            //        // since that freezes droid app
+            //        // no idea how to avoid hardcode yet
+            //        // -
+            //        int smallDatasetPointsCount = 32; // dataset of one month +-1 day
+            //
+            //        bool isSmallDataset = (totalNumberOfDataPoints <= smallDatasetPointsCount);
+            //
+            //        if (isSmallDataset)
+            //        {
+            //            DataPoint nearestDataPoint = castedLineSeries.Points[indexOfNearestDataPoint];
+            //
+            //            ScreenPoint screenCoordinatesOfNearestDataPoint =
+            //                castedLineSeries.Transform(nearestDataPoint);
+            //
+            //            double trackerLineX = screenCoordinatesOfNearestDataPoint.X;
+            //
+            //            this.rc.DrawLine(
+            //                x0: trackerLineX,
+            //                y0: actualModel.PlotAndAxisArea.Bottom,
+            //                x1: trackerLineX,
+            //                y1: actualModel.PlotAndAxisArea.Top,
+            //                pen: verticalLinePen);
+            //        }
+            //        else
+            //        {
+            //            this.rc.DrawLine(
+            //                x0: _lastTrackerHitResult.Position.X,
+            //                y0: actualModel.PlotAndAxisArea.Bottom,
+            //                x1: _lastTrackerHitResult.Position.X,
+            //                y1: actualModel.PlotAndAxisArea.Top,
+            //                pen: verticalLinePen);
+            //        }
+            //    }
+            //}
+            //else
+            //{
+            //    // Note: [@dodikk] coordinates "as is" are good for large datasets
+            //    // when all data points do not fit into canvas pixels
+            //    // and some interpolation happens
+            //    // ---
+            //    // Highlighting individual points makes no sense in this case
+            //    // so the logic above is not needed
+            //    // -
+            //
+            //    this.rc.DrawLine(
+            //        x0: _lastTrackerHitResult.Position.X,
+            //        y0: actualModel.PlotAndAxisArea.Bottom,
+            //        x1: _lastTrackerHitResult.Position.X,
+            //        y1: actualModel.PlotAndAxisArea.Top,
+            //        pen: verticalLinePen);
+            //}
         }
 
         /// <summary>
