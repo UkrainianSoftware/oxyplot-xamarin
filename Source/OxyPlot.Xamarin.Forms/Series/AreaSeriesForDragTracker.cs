@@ -34,10 +34,10 @@ namespace OxyPlot
             var xy = this.InverseTransform(point);
             var targetX = xy.X;
             int startIdx = this.IsXMonotonic
-                ? this.FindWindowStartIndex(this.ActualPoints, p => p.X, targetX, this.WindowStartIndex)
+                ? this.FindWindowStartIndex_TrackerPatch(this.ActualPoints, p => p.X, targetX, this.WindowStartIndex)
                 : 0;
             int startIdx2 = this.IsXMonotonic
-                ? this.FindWindowStartIndex(this.ActualPoints2, p => p.X, targetX, this.WindowStartIndex2)
+                ? this.FindWindowStartIndex_TrackerPatch(this.ActualPoints2, p => p.X, targetX, this.WindowStartIndex2)
                 : 0;
 
             TrackerHitResult result1, result2;
@@ -330,5 +330,76 @@ namespace OxyPlot
         //
         //    return u1 / u2;
         //}
+
+
+        /// <summary>
+        /// Finds the index of max(x) &lt;= target x in a list of data points
+        /// </summary>
+        /// <typeparam name="T">The type of the list items.</typeparam>
+        /// <param name="items">vector of data points</param>
+        /// <param name="xgetter">Function that gets data point X coordinate.</param>
+        /// <param name="targetX">target x.</param>
+        /// <param name="initialGuess">initial guess index.</param>
+        /// <returns>
+        /// index of x with max(x) &lt;= target x or 0 if cannot find
+        /// </returns>
+        public int FindWindowStartIndex<T>(IList<T> items, Func<T, double> xgetter, double targetX, int initialGuess)
+        {
+            int start = 0;
+            int nominalEnd = items.Count - 1;
+            while (nominalEnd > 0 && double.IsNaN(xgetter(items[nominalEnd])))
+                nominalEnd -= 1;
+            int end = nominalEnd;
+            int curGuess = Math.Max(0, Math.Min(end, initialGuess));
+
+            double GetX(int index)
+            {
+                while (index <= nominalEnd)
+                {
+                    double guessX = xgetter(items[index]);
+                    if (double.IsNaN(guessX))
+                        index += 1;
+                    else
+                        return guessX;
+                }
+                return xgetter(items[nominalEnd]);
+            }
+
+            while (start < end)
+            {
+                double guessX = GetX(curGuess);
+                if (guessX.Equals(targetX))
+                {
+                    start = curGuess;
+                    break;
+                }
+                else if (guessX > targetX)
+                {
+                    end = curGuess - 1;
+                }
+                else
+                {
+                    start = curGuess;
+                }
+
+                if (start >= end)
+                {
+                    break;
+                }
+
+                double endX = GetX(end);
+                double startX = GetX(start);
+
+                var m = (end - start + 1) / (endX - startX);
+
+                curGuess = start + (int)((targetX - startX) * m);
+                curGuess = Math.Max(start + 1, Math.Min(curGuess, end));
+            }
+
+            while (start > 0 && (xgetter(items[start]) > targetX))
+                start -= 1;
+
+            return start;
+        }
     }
 }

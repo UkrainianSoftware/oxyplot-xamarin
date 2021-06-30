@@ -579,7 +579,7 @@ namespace OxyPlot.Xamarin.Android
         /// <returns><c>true</c> if the event was handled.</returns>
         private bool OnTouchMoveEvent(MotionEvent e)
         {
-            var currentTouchPoints = e.GetTouchPoints(Scale);
+            ScreenPoint[] currentTouchPoints = e.GetTouchPoints(Scale);
             var args = new OxyTouchEventArgs(currentTouchPoints, this.previousTouchPoints);
             /*var handled*/ _ = this.ActualController.HandleTouchDelta(this, args);
             this.previousTouchPoints = currentTouchPoints;
