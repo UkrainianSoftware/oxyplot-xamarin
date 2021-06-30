@@ -343,12 +343,27 @@ namespace OxyPlot
         /// <returns>
         /// index of x with max(x) &lt;= target x or 0 if cannot find
         /// </returns>
-        public int FindWindowStartIndex<T>(IList<T> items, Func<T, double> xgetter, double targetX, int initialGuess)
+        public int FindWindowStartIndex_TrackerPatch<T>(
+            IList<T> items,
+            Func<T, double> xgetter,
+            double targetX,
+            int initialGuess)
         {
+            // copy-paste from oxyplot/oxyplot repo to avoid forking
+            // https://github.com/oxyplot/oxyplot/blob/075d1b3808946e0661c0544af248dfdc3a898ebc/Source/OxyPlot/Series/XYAxisSeries.cs#L773
+            // -
+
             int start = 0;
             int nominalEnd = items.Count - 1;
-            while (nominalEnd > 0 && double.IsNaN(xgetter(items[nominalEnd])))
+
+            double maybeNominalEndX = xgetter(items[nominalEnd]);
+            while (nominalEnd > 0 && double.IsNaN(maybeNominalEndX))
+            {
                 nominalEnd -= 1;
+                maybeNominalEndX = xgetter(items[nominalEnd]);
+            }
+
+
             int end = nominalEnd;
             int curGuess = Math.Max(0, Math.Min(end, initialGuess));
 
@@ -358,17 +373,26 @@ namespace OxyPlot
                 {
                     double guessX = xgetter(items[index]);
                     if (double.IsNaN(guessX))
+                    {
                         index += 1;
+                    }
                     else
+                    {
                         return guessX;
+                    }
                 }
-                return xgetter(items[nominalEnd]);
+
+                double resultGetXNotFound = xgetter(items[nominalEnd]);
+                return resultGetXNotFound;
             }
 
+            double precisionX = 0.01;
             while (start < end)
             {
                 double guessX = GetX(curGuess);
-                if (guessX.Equals(targetX))
+                bool isGuessSameAsTarget = (Math.Abs(guessX - targetX) <= precisionX);
+
+                if (isGuessSameAsTarget)
                 {
                     start = curGuess;
                     break;
@@ -390,14 +414,25 @@ namespace OxyPlot
                 double endX = GetX(end);
                 double startX = GetX(start);
 
-                var m = (end - start + 1) / (endX - startX);
 
-                curGuess = start + (int)((targetX - startX) * m);
+                int lengthOfEntireIndexRange = (end - start + 1);
+                double lengthOfEntireRangeX = (endX - startX);
+
+                var m = lengthOfEntireIndexRange / lengthOfEntireRangeX;
+
+                double distanceOfTargetX = (targetX - startX);
+
+                double preciseDistanceOfIndexX = distanceOfTargetX * m;
+                int distanceOfIndexX = (int)preciseDistanceOfIndexX;
+
+                curGuess = start + distanceOfIndexX;
                 curGuess = Math.Max(start + 1, Math.Min(curGuess, end));
             }
 
             while (start > 0 && (xgetter(items[start]) > targetX))
+            {
                 start -= 1;
+            }
 
             return start;
         }
