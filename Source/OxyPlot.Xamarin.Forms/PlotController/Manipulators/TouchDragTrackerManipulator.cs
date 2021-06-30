@@ -112,7 +112,8 @@ namespace OxyPlot
 
         private Series.Series GetSeriesForPoint(ScreenPoint position)
         {
-            var result = GetSeriesForPointFairplay(position);
+            var result = GetAreaOnlySeriesForPoint(position);
+            // var result = GetSeriesForPointFairplay(position);
             // var result = GetSeriesForPointFirst(position);
 
             return result;
@@ -120,8 +121,32 @@ namespace OxyPlot
 
         private Series.Series GetSeriesForPointFairplay(ScreenPoint position)
         {
-            var result = this.PlotView.ActualModel?.GetSeriesFromPoint(position, this.FiresDistance);
+            var result = this.PlotView.ActualModel?.GetSeriesFromPoint(position, limit: this.FiresDistance);
             return result;
+        }
+
+        private Series.Series GetAreaOnlySeriesForPoint(ScreenPoint position)
+        {
+            var plotModel = this.PlotView.ActualModel;
+            if (plotModel == null)
+            {
+                return null;
+            }
+            else if (plotModel is PlotModelExtended)
+            {
+                var castedPlotModel = plotModel as PlotModelExtended;
+                var result = castedPlotModel.GetSeriesFromPoint(
+                    position,
+                    seriesPredicate: s => s is Series.AreaSeries,
+                    limit: this.FiresDistance);
+
+                return result;
+            }
+            else
+            {
+                var result = GetSeriesForPointFairplay(position);
+                return result;
+            }
         }
 
         private Series.Series GetSeriesForPointFirst(ScreenPoint position)
