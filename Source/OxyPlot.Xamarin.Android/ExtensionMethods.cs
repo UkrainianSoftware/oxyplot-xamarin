@@ -59,6 +59,9 @@ namespace OxyPlot.Xamarin.Android
         {
             return new OxyTouchEventArgs
             {
+                // Note: [alex-d] [xm-948] force ScreenPoint.Y to zero makes dragging even worse
+                //       in fact, touches can no longer reach ShowTracker() in that case
+                // -
                 Position = new ScreenPoint(
                     e.GetX(e.ActionIndex) / scale,
                     e.GetY(e.ActionIndex) / scale),
@@ -79,6 +82,9 @@ namespace OxyPlot.Xamarin.Android
             var result = new ScreenPoint[e.PointerCount];
             for (int i = 0; i < e.PointerCount; i++)
             {
+                // Note: [alex-d] [xm-948] force ScreenPoint.Y to zero makes dragging even worse
+                //       in fact, touches can no longer reach ShowTracker() in that case
+                // -
                 result[i] = new ScreenPoint(
                     e.GetX(i) / scale,
                     e.GetY(i) / scale);
