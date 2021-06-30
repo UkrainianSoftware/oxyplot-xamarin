@@ -81,6 +81,8 @@ namespace OxyPlot
             {
                 this.PlotView.ActualModel.RaiseTrackerChanged(null);
             }
+
+            e.Handled = true;
         }
 
         /// <summary>
@@ -104,6 +106,8 @@ namespace OxyPlot
 
             this.currentSeries = GetSeriesForPoint(e.Position);
             UpdateTracker(e.Position);
+
+            e.Handled = true;
         }
 
         private Series.Series GetSeriesForPoint(ScreenPoint position)
@@ -144,6 +148,8 @@ namespace OxyPlot
             // this.currentSeries = this.PlotView.ActualModel?.GetSeriesFromPoint(e.Position, this.FiresDistance);
             this.currentSeries = GetSeriesForPoint(e.Position);
             UpdateTracker(e.Position);
+
+            e.Handled = true;
         }
 
         /// <summary>
