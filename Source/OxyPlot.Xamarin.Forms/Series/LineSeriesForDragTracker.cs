@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define SHOULD_IGNORE_Y_COORDINATE
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using OxyPlot.Series;
@@ -36,7 +38,12 @@ namespace OxyPlot
 
             if (interpolate && this.InterpolationAlgorithm != null)
             {
+#if SHOULD_IGNORE_Y_COORDINATE
                 var result = this.GetNearestInterpolatedPointInternalX(this.SmoothedPoints, point);
+#else
+                var result = this.GetNearestInterpolatedPointInternal(this.SmoothedPoints, point);]
+#endif
+
                 if (result != null)
                 {
                     result.Text = StringHelper.Format(
@@ -72,12 +79,20 @@ namespace OxyPlot
             TrackerHitResult result = null;
             if (interpolate)
             {
+#if SHOULD_IGNORE_Y_COORDINATE
                 result = this.GetNearestInterpolatedPointInternalX(this.ActualPoints, point);
+#else
+                result = this.GetNearestInterpolatedPointInternal(this.ActualPoints, point);
+#endif
             }
 
             if (result == null)
             {
+#if SHOULD_IGNORE_Y_COORDINATE
                 result = this.GetNearestPointInternalX(this.ActualPoints, point);
+#else
+                result = this.GetNearestPointInternal(this.ActualPoints, point);
+#endif
             }
 
             if (result != null)

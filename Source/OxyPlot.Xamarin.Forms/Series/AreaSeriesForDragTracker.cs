@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define SHOULD_IGNORE_Y_COORDINATE
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using OxyPlot.Series;
@@ -43,21 +45,35 @@ namespace OxyPlot
             TrackerHitResult result1, result2;
             if (interpolate && this.CanTrackerInterpolatePoints)
             {
+#if SHOULD_IGNORE_Y_COORDINATE
                 result1 = this.GetNearestInterpolatedPointInternalX(this.ActualPoints, startIdx, point);
                 result2 = this.GetNearestInterpolatedPointInternalX(this.ActualPoints2, startIdx2, point);
+#else
+                result1 = this.GetNearestInterpolatedPointInternal(this.ActualPoints, startIdx, point);
+                result2 = this.GetNearestInterpolatedPointInternal(this.ActualPoints2, startIdx2, point);
+#endif
             }
             else
             {
+#if SHOULD_IGNORE_Y_COORDINATE
                 result1 = this.GetNearestPointInternalX(this.ActualPoints, startIdx, point);
                 result2 = this.GetNearestPointInternalX(this.ActualPoints2, startIdx2, point);
+#else
+                result1 = this.GetNearestPointInternal(this.ActualPoints, startIdx, point);
+                result2 = this.GetNearestPointInternal(this.ActualPoints2, startIdx2, point);
+#endif
             }
 
             TrackerHitResult result;
             if (result1 != null && result2 != null)
             {
+#if SHOULD_IGNORE_Y_COORDINATE
                 double dist1 = Math.Abs(result1.Position.X - point.X); // result1.Position.DistanceTo(point);
                 double dist2 = Math.Abs(result2.Position.X - point.X); // result2.Position.DistanceTo(point);
-
+#else
+                double dist1 = result1.Position.DistanceTo(point);
+                double dist2 = result2.Position.DistanceTo(point);
+#endif
                 result = (dist1 < dist2)
                     ? result1
                     : result2;
