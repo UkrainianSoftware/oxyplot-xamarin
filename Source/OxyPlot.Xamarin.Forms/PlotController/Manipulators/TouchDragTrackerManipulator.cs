@@ -112,15 +112,41 @@ namespace OxyPlot
 
         private Series.Series GetSeriesForPoint(ScreenPoint position)
         {
-            var result = GetMidSeriesForPoint(position);
+            // var result = GetMidSeriesForPoint(position);
             // var result = GetAreaOnlySeriesForPoint(position);
-            // var result = GetSeriesForPointFairplay(position);
+            var result = GetSeriesForPointFairplay(position);
+            // var result = GetSeriesForPointLegacy(position);
             // var result = GetSeriesForPointFirst(position);
 
             return result;
         }
 
         private Series.Series GetSeriesForPointFairplay(ScreenPoint position)
+        {
+            var plotModel = this.PlotView.ActualModel;
+            if (plotModel == null)
+            {
+                return null;
+            }
+            else if (plotModel is PlotModelExtended)
+            {
+                var castedPlotModel = plotModel as PlotModelExtended;
+                var result = castedPlotModel.GetSeriesFromPoint(
+                    position,
+                    seriesPredicate: s => true,
+                    limit: this.FiresDistance);
+
+                return result;
+            }
+            else
+            {
+                var result = GetSeriesForPointLegacy(position);
+                return result;
+            }
+        }
+
+
+        private Series.Series GetSeriesForPointLegacy(ScreenPoint position)
         {
             var result = this.PlotView.ActualModel?.GetSeriesFromPoint(position, limit: this.FiresDistance);
             return result;
@@ -145,7 +171,7 @@ namespace OxyPlot
             }
             else
             {
-                var result = GetSeriesForPointFairplay(position);
+                var result = GetSeriesForPointLegacy(position);
                 return result;
             }
         }
@@ -169,7 +195,7 @@ namespace OxyPlot
             }
             else
             {
-                var result = GetSeriesForPointFairplay(position);
+                var result = GetSeriesForPointLegacy(position);
                 return result;
             }
         }
