@@ -443,14 +443,15 @@ namespace OxyPlot
         /// </summary>
         /// <param name="pt">The point.</param>
         /// <returns><c>true</c> if the point is valid; otherwise, <c>false</c> .</returns>
-        protected override bool IsValidPoint(DataPoint pt)
-        {
-            return true;
-
-            //return
-            //    this.XAxis != null && this.XAxis.IsValidValue(pt.X) &&
-            //    this.YAxis != null && this.YAxis.IsValidValue(pt.Y);
-        }
-
+        //protected override bool IsValidPoint(DataPoint pt)
+        //{
+        //    // Might crash with stub with "pt.X way too large"
+        //    // -
+        //    // return true;
+        //
+        //    return
+        //        this.XAxis != null && this.XAxis.IsValidValue(pt.X) &&
+        //        this.YAxis != null && this.YAxis.IsValidValue(pt.Y);
+        //}
     }
 }
