@@ -21,7 +21,7 @@ namespace OxyPlot
 
             double mindist = double.MaxValue;
             Series.Series nearestSeries = null;
-            foreach (var series in this.Series.Reverse().Where(s => s.IsVisible).Where(s => seriesPredicate(s)))
+            foreach (var series in this.Series.Reverse().Where(s => seriesPredicate(s)))
             {
                 var thr = series.GetNearestPoint(point, true) ?? series.GetNearestPoint(point, false);
 
