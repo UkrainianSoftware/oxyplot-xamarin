@@ -1,4 +1,4 @@
-﻿
+﻿using Xamarin.Forms;
 
 namespace OxyPlot
 {
@@ -11,6 +11,7 @@ namespace OxyPlot
         public MidLineSeries()
         {
             IsVisible = false;
+            Color = OxyColors.Transparent;
         }
     }
 }
