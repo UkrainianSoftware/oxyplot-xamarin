@@ -1,4 +1,8 @@
-﻿#define SHOULD_IGNORE_Y_COORDINATE
+﻿// #define SHOULD_IGNORE_Y_COORDINATE
+// ---
+// Note: [alex-d] even with invisible lines ignoring Y works better
+// -
+
 
 using System;
 using System.Collections.Generic;

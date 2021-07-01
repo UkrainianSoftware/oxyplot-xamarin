@@ -1,4 +1,7 @@
 ﻿#define SHOULD_IGNORE_Y_COORDINATE
+// ---
+// Note: [alex-d] even with invisible lines ignoring Y works better
+// -
 
 using System;
 using System.Collections.Generic;
@@ -41,7 +44,7 @@ namespace OxyPlot
 #if SHOULD_IGNORE_Y_COORDINATE
                 var result = this.GetNearestInterpolatedPointInternalX(this.SmoothedPoints, point);
 #else
-                var result = this.GetNearestInterpolatedPointInternal(this.SmoothedPoints, point);]
+                var result = this.GetNearestInterpolatedPointInternal(this.SmoothedPoints, point);
 #endif
 
                 if (result != null)
