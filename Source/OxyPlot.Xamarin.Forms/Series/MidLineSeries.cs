@@ -10,8 +10,13 @@ namespace OxyPlot
 
         public MidLineSeries()
         {
-            IsVisible = false;
+            IsVisible = true;
             Color = OxyColors.Transparent;
+
+            //byte colorAlpha = 0;
+            //Color = OxyColor.FromAColor(
+            //    a: colorAlpha,
+            //    color: OxyColors.Pink);
         }
     }
 }
